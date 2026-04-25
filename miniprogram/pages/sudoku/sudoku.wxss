@@ -1,0 +1,50 @@
+/* 9*9 网格容器 */
+.grid-9x9 {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 10rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+.cell-9 {
+  aspect-ratio: 1 / 1;
+  border-radius: 6rpx;
+  display: grid;
+  place-items: center;
+  font-size: 24rpx;
+  color: #333;
+}
+.grid-2x5{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5列 */
+  gap: 20rpx; /* 格子间距 */
+  padding: 0 20rpx;
+  box-sizing: border-box;
+}
+.cell-5{
+  border-radius: 6rpx;
+  display: grid;
+  place-items: center;
+  font-size: 40rpx;
+  padding: 20rpx;
+  color: #000000;
+  background: #d2f2d2;
+}
+.cell-5:active{
+  background: #f2d2f2;
+}
+.even {
+  background: #a2c20f;
+}
+.odd {
+  background: #d2d2d2;
+}
+.selected {
+  background: #7380ff;
+}
+.selectedMark{
+  background: #7380aa;
+}
+.sameMark {
+  background: #a2420f;
+}

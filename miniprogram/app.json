@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/sudoku/sudoku",
     "pages/index/index",
     "pages/logs/logs"
   ],
