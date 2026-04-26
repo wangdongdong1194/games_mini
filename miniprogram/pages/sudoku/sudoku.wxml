@@ -1,21 +1,26 @@
 <view class="grid-9x9">
   <view 
-    class="cell-9 {{ boxColors[index]}}"
+    class="cell-9 {{ boxColors[index]}} {{ readableColors[index]}}"
     wx:for="{{sudokuDatas}}" 
     wx:key="index"
     data-index="{{index}}"
     bind:tap="clickCellEvent">
-    {{ item || '' }}
-    {{isLightBox(index)}}
+    {{ item }}
   </view>
 </view>
 <view class="grid-2x5">
   <view
-    class="cell-5"
+    class="cell-5 {{ (disabledInputList[index]) ? 'disabled' : ''}}"
     wx:for="{{inputDatas}}"
     wx:key="index"
     data-index="{{index}}"
     bind:tap="clickInputCellEvent">
-    {{ item || '' }}
+    <view class="cell-5-value">{{ item.value }}</view>
+    <view class="cell-5-remain">{{ item.value === DELETE_FLAG ? '' : item.remain }}</view>
   </view>
+</view>
+<view class="grid-1x3">
+  <view class="cell-5" bind:tap="prompt">提示</view>
+  <view class="cell-5">换题</view>
+  <view class="cell-5" bind:tap="replay">重玩</view>
 </view>

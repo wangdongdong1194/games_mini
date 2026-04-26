@@ -2,7 +2,7 @@
 .grid-9x9 {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  gap: 10rpx;
+  gap: 5rpx;
   padding: 20rpx;
   box-sizing: border-box;
 }
@@ -11,7 +11,7 @@
   border-radius: 6rpx;
   display: grid;
   place-items: center;
-  font-size: 24rpx;
+  font-size: 40rpx;
   color: #333;
 }
 .grid-2x5{
@@ -23,28 +23,51 @@
 }
 .cell-5{
   border-radius: 6rpx;
-  display: grid;
-  place-items: center;
-  font-size: 40rpx;
+  display: flex;
   padding: 20rpx;
   color: #000000;
-  background: #d2f2d2;
+  background: #70f76b;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10rpx;
 }
 .cell-5:active{
   background: #f2d2f2;
 }
+.cell-5-value{
+  font-size: 50rpx;
+}
+.cell-5-remain{
+  font-size: 30rpx;
+  color: #999999;
+}
 .even {
-  background: #a2c20f;
+  background: #f0be7d;
 }
 .odd {
-  background: #d2d2d2;
+  background: #c1f1db;
+}
+.readable {
+  font-weight: 200;
 }
 .selected {
-  background: #7380ff;
+  background: #06be1f;
+  color: #ffffff;
 }
 .selectedMark{
-  background: #7380aa;
+  background: #68d2ec;
 }
 .sameMark {
-  background: #a2420f;
+  background: #76ee86;
+}
+.disabled {
+  pointer-events: none; /* 核心：禁止所有点击/触摸事件 */
+  opacity: 0.4; /* 可选：变灰，看起来不可点 */
+}
+.grid-1x3{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx; /* 格子间距 */
+  padding: 20rpx;
+  box-sizing: border-box;
 }
