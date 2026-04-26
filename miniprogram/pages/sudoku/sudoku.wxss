@@ -13,6 +13,7 @@
   place-items: center;
   font-size: 40rpx;
   color: #333;
+  font-weight: 500;
 }
 .grid-2x5{
   display: grid;
@@ -51,14 +52,15 @@
   font-weight: 200;
 }
 .selected {
-  background: #06be1f;
+  background: #205ed1;
   color: #ffffff;
 }
 .selectedMark{
   background: #68d2ec;
 }
 .sameMark {
-  background: #76ee86;
+  background: #28a1da;
+  color: #ffffff;
 }
 .disabled {
   pointer-events: none; /* 核心：禁止所有点击/触摸事件 */

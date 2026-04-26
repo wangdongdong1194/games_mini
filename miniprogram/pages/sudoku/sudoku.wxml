@@ -21,6 +21,6 @@
 </view>
 <view class="grid-1x3">
   <view class="cell-5" bind:tap="prompt">提示</view>
-  <view class="cell-5">换题</view>
+  <view class="cell-5" bind:tap="exchange">换题</view>
   <view class="cell-5" bind:tap="replay">重玩</view>
 </view>

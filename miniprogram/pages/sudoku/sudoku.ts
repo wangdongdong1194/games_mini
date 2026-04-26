@@ -86,10 +86,8 @@ Page({
     wx.showLoading({ title: '加载中' })
     let sudokuList = wx.getStorageSync(this.data.STORAGE_QUESTION_LIST) as string;
     if(!sudokuList || sudokuList.length !== this.data.TOTAL_COUNT){
-      sudokuList = '530070000600195000098000060800060003400803001700020006060000280000419005000080079';
-      const answers = '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
-      wx.setStorageSync(this.data.STORAGE_QUESTION_LIST, sudokuList);
-      wx.setStorageSync(this.data.STORAGE_ANSWER_LIST, answers);
+      const datas = this.getDataAndStorage();
+      sudokuList = datas.sudokuList;
     }
     if(!sudokuList || sudokuList.length !== this.data.TOTAL_COUNT){
       wx.showLoading({ title: '接口异常' })
@@ -115,17 +113,6 @@ Page({
       });
       this.calRemain();
       wx.hideLoading();
-      // wx.request({
-      //   url: '你的接口地址',
-      //   method: 'GET',
-      //   success: (res) => {
-      //     // 赋值渲染 grid 数据
-      //   },
-      //   complete: () => {
-      //     wx.hideLoading()
-      //     this.setData({ loading: false })
-      //   }
-      // })
     }
   },
   // 点击选中事件
@@ -282,10 +269,21 @@ Page({
       disabledInputList,
     });
   },
+  // 重玩
   replay(){
-    wx.removeStorageSync(this.data.STORAGE_RESPONSE_LIST);
-    this.getSudokuApi();
+    wx.showModal({
+      content: '确定要重玩？',
+      confirmText: '确定',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          wx.removeStorageSync(this.data.STORAGE_RESPONSE_LIST);
+          this.getSudokuApi();
+        }
+      }
+    })
   },
+  // 提示
   prompt(){
     const selectedIndex = this.data.selectedIndex;
     if(selectedIndex > -1 && this.data.boxColors[selectedIndex]===this.data.CLASS_SELECTED && !this.data.readableColors[selectedIndex]){
@@ -298,5 +296,99 @@ Page({
         });
       }
     }
+  },
+  // 换题
+  exchange(){
+    wx.showModal({
+      content: '确定要换题？',
+      confirmText: '确定',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          wx.removeStorageSync(this.data.STORAGE_ANSWER_LIST);
+          wx.removeStorageSync(this.data.STORAGE_RESPONSE_LIST);
+          wx.removeStorageSync(this.data.STORAGE_QUESTION_LIST);
+          this.getSudokuApi();
+        }
+      }
+    })
+    // wx.request({
+    //   url: 'http://www.wangzhidong.cn:3000/api/sudoku',
+    //   method: 'GET',
+    //   success: (res) => {
+    //     // 赋值渲染 grid 数据
+    //     console.log(res);
+    //   },
+    //   complete: () => {
+    //     wx.hideLoading()
+    //     this.setData({ loading: false })
+    //   }
+    // })
+  },
+  // 设置数据到缓存
+  getDataAndStorage(){
+    const resFromApi = this.getDataFromApi();
+    if(resFromApi && resFromApi.sudokuList){
+      const sudokuList = resFromApi.sudokuList;
+      wx.setStorageSync(this.data.STORAGE_QUESTION_LIST, sudokuList);
+    }
+    const answers = resFromApi.answers;
+    wx.setStorageSync(this.data.STORAGE_ANSWER_LIST, answers);
+    return resFromApi;
+  },
+  // 获取题
+  getDataFromApi(){
+    const totalSudoku = [{
+      "id": 16,
+      "puzzle": "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
+      "solution": "275491638649783215381625947921537864854269173736148592518974326462315789197856423"
+    },{
+      "id": 15,
+      "puzzle": "000000000003010000402000500010000090000504000080000070009000301000090200000000000",
+      "solution": "958467213743215986462839517517328694236574189689146375829753461175698234341982756"
+    },{
+      "id": 14,
+      "puzzle": "800000000003600000070090200050007000000045700000100030001000068008500010090000400",
+      "solution": "812753649943682175576491283154327896389645721267189534421978365738564912695231478"
+    },{
+      "id": 13,
+      "puzzle": "000000020080007090602000500070060000000901000000020040005000603090400070010000000",
+      "solution": "954716328381547692672389514179463852243951786568729143425178639896435271713692485"
+    },{
+      "id": 12,
+      "puzzle": "008000500010603070500000001000174000040302010000589000800000003060208050009000700",
+      "solution": "378421569912653478546897321695174832741362915234589671857916243163248759429735186"
+    },{
+      "id": 11,
+      "puzzle": "000000000302070104081040520000206000940000087000708000034050260706010403000000000",
+      "solution": "597831642362579184481642523875296314943157286621748935134958267756214893218364759"
+    },{
+      "id": 10,
+      "puzzle": "000602000400050001085010620038000160000060000067000340019050270200080005000907000",
+      "solution": "193642857426857391785319624538724169941563782267198345819456273274381965653297418"
+    },{
+      "id": 9,
+      "puzzle": "200080300060007084030500209000105408000000000602003000504002090910030020008040006",
+      "solution": "245981367169327584837564219923175486758496123614283975584612793916738542372549861"
+    },{
+      "id": 8,
+      "puzzle": "003020600900305001001806400008102900700000008006708200002609500800203009005010300",
+      "solution": "483921657967345821251876493548132976729564138136798254372619584814253769695487312"
+    }];
+    const result: {sudokuList: string,answers: string} = {
+      sudokuList: '',
+      answers: '',
+    };
+    const res = totalSudoku[Math.floor(Math.random() * totalSudoku.length)];
+    if(result){
+      result.sudokuList = res.puzzle;
+      result.answers = res.solution;
+    }else {
+      wx.showToast({
+        title: '未获取到数独',
+        icon: 'error'
+      });
+    }
+    return result;
   }
 })
