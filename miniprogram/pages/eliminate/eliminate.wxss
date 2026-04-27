@@ -1,0 +1,36 @@
+.main{
+  height: 100vh; 
+  display: flex; 
+  flex-direction: column
+}
+.score{
+  width: 100%;
+  flex: 1;
+  background: linear-gradient(to top, #99ffff, #ffffff);
+  flex-shrink: 0;
+}
+.func {
+  width: 100%;
+  flex: 1;
+  background: #99ffff;
+  flex-shrink: 0;
+}
+.grid-9x9 {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 10rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+.cell-9 {
+  aspect-ratio: 1 / 1;
+  border-radius: 6rpx;
+  display: grid;
+  place-items: center;
+  font-size: 40rpx;
+  color: #333;
+  background: #99ffff;
+}
+.selected {
+  background: #33aaff;
+}

@@ -1,0 +1,16 @@
+<view class="main">
+  <view class="score"></view>
+  <view class="grid-9x9">
+    <view 
+      class="cell-9 {{item.selected? 'selected': ''}}"
+      wx:for="{{eliminateDatas}}" 
+      wx:key="index"
+      data-index="{{index}}"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd">
+      {{ item.type }}
+    </view>
+  </view>
+  <view class="func"></view>
+</view>
