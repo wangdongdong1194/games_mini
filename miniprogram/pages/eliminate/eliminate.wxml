@@ -10,7 +10,7 @@
       bindtouchstart="onTouchStart"
       bindtouchmove="onTouchMove"
       bindtouchend="onTouchEnd">
-      {{ item.type }}
+      {{ index }}
     </view>
   </view>
   <view class="func"></view>

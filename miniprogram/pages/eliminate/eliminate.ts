@@ -138,10 +138,16 @@ Page({
         startLine --;
       }
     }
+    let startColumn = 8;
+    while(startColumn >= 0){
+      const columns = this.canClearColumn(startColumn);
+      console.log(columns, startColumn);
+      startColumn--;
+    }
     this.data.playState =false;
   },
   // 二维转一维，步进值
-  towArray2OneArray(lineNo: number, lines: number[][],step: number = 9){
+  towArray2OneArrayRow(lineNo: number, lines: number[][],step: number = 9){
     const arr = [];
     for(const line of lines){
       for(const l of line){
@@ -150,9 +156,18 @@ Page({
     }
     return arr;
   },
+  towArray2OneArrayColumn(columnNo: number, columns: number[][],step: number = 9){
+    const arr = [];
+    for(const line of columns){
+      for(const l of line){
+        arr.push(l * step + columnNo);
+      }
+    }
+    return arr;
+  },
   // 设置行样式
   setClearRowSwing(lineNo: number, lines: number[][], quit?: boolean){
-    const clearRowArray = this.towArray2OneArray(lineNo, lines);
+    const clearRowArray = this.towArray2OneArrayRow(lineNo, lines);
     const eliminateDatas = this.data.eliminateDatas.map((t, index)=>{
       if(clearRowArray.includes(index)){
         t.clearRow = !!quit;
@@ -221,6 +236,31 @@ Page({
     }
     if(line.length >= 3){
       resultArray.push([...line]);
+    }
+    return resultArray;
+  },
+  // 列是否可清除
+  canClearColumn(columnNo: number): number[][]{
+    // 列
+    const eliminateData = this.data.eliminateDatas.filter((_, index) => index % 9 === columnNo);
+    const resultArray: number[][] = [];
+    const column: number[] = [];
+    for(let i = 0 ; i < eliminateData.length ; i ++){
+      const curType = eliminateData[i].type;
+      if (!column.length) {
+        column.push(i);
+        continue;
+      }
+      if(eliminateData[column[column.length-1]].type !== curType){
+        if(column.length >= 3){
+          resultArray.push([...column]);
+        }
+        column.splice(0, column.length);
+      }
+      column.push(i);
+    }
+    if(column.length >= 3){
+      resultArray.push([...column]);
     }
     return resultArray;
   },
