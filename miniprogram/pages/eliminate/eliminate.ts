@@ -12,7 +12,8 @@ Page({
     index: -1,
     MOVE_DISTANCE: 10, // 超过这个值算移动
     state: false,
-    maxType: 5,
+    maxType: 3,
+    animationInternal: 200,
   },
   /**
    * 生命周期函数--监听页面加载
@@ -35,9 +36,13 @@ Page({
    */
   onReady() {
     const query = wx.createSelectorQuery();
-    console.log(query);
+    const info = wx.getSystemInfoSync();
     query.select('.cell-9 ').boundingClientRect(res => {
-      this.data.cellWidth = res.width * 750;
+      this.data.cellWidth = res.width * 750 / info.screenWidth;
+      console.log(this.data.cellWidth, res.width, info.screenWidth);
+      this.setData({
+        cellWidth: this.data.cellWidth,
+      });
     }).exec()
   },
   /**
@@ -118,11 +123,11 @@ Page({
       const lines = this.canClearRow(startLine);
       if(lines.length){
         this.setClearRowSwing(startLine, lines, true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
         this.setClearRowSwing(startLine, lines);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
         this.fullDownRow(startLine, lines);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
         this.fulllDownRowRestore();
         this.addZeroRow(lines);
       } else {
@@ -250,6 +255,7 @@ Page({
     if(lineNo === 0){
       return;
     }
+    this.fulllDownRowRestore();
     for(let i = lineNo ; i > 0 ; i --){
       const startLineNo = i * 9;
       const preLineNo = (i - 1) * 9;

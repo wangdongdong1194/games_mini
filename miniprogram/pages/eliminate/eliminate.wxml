@@ -1,10 +1,9 @@
 <view class="main">
   <view class="score"></view>
-  <view class="grid-9x9">
+  <view class="grid-9x9" style="--cellWidth: {{cellWidth}}rpx">
     <view 
-      class="cell-9 {{item.selected? 'selected': ''}} {{item.clearRow? 'clearRow': ''}}"
-      style="transform: translateY({{item.fullDown ? cellWidth: 0}}rpx);"
-      wx:for="{{eliminateDatas}}" 
+      class="cell-9 {{item.clearRow? 'clearRow': ''}} {{item.fullDown? 'fullDown': ''}}"
+      wx:for="{{eliminateDatas}}"
       wx:key="index"
       data-index="{{index}}"
       bindtouchstart="onTouchStart"
