@@ -4,16 +4,17 @@ Page({
    */
   data: {
     cellWidth: 0,
-    eliminateDatas:Array<{type: string;selected: boolean;clearRow: boolean;fullDown: boolean}>(),
+    eliminateDatas:Array<{type: string;clearRow: boolean;fullDown: boolean}>(),
     pressInfo: {
       startTouchX: 0,
       startTouchY: 0,
+      touchState: false,
     },
     index: -1,
     MOVE_DISTANCE: 10, // 超过这个值算移动
-    state: false,
     maxType: 3,
     animationInternal: 200,
+    playState: false,
   },
   /**
    * 生命周期函数--监听页面加载
@@ -22,11 +23,11 @@ Page({
     const eliminateDatas = Array.from({ length: 81 }).map(() => {
       return {
         type: String(Math.floor(Math.random() * (this.data.maxType + 1))),
-        selected: false,
         clearRow: false,
         fullDown: false,
       }
     });
+    this.data.playState =false;
     this.setData({
       eliminateDatas,
     });
@@ -35,6 +36,11 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady() {
+    this.calCellWidth();
+    this.handler();
+  },
+  // 计算cell宽度
+  calCellWidth(){
     const query = wx.createSelectorQuery();
     const info = wx.getSystemInfoSync();
     query.select('.cell-9 ').boundingClientRect(res => {
@@ -86,24 +92,17 @@ Page({
     const {clientX, clientY} = e.touches[0];
     this.data.pressInfo.startTouchX = clientX;
     this.data.pressInfo.startTouchY = clientY;
+    this.data.pressInfo.touchState = true;
     this.data.index = index;
-    this.data.eliminateDatas.map((t,innerIndex) => {
-      if(index ===innerIndex){
-        t.selected = true;
-      }else {
-        t.selected = false;
-      }
-      return t;
-    });
     this.setData({
-      eliminateDatas: this.data.eliminateDatas,
-      state: true,
+      pressInfo: this.data.pressInfo,
     });
   },
   async onTouchMove(e:any) {
-    if(!this.data.state){
+    if(!this.data.pressInfo.touchState || this.data.playState){
       return;
     }
+    console.log('==');
     // 交换
     if(!this.exchange(e.touches[0].clientX,e.touches[0].clientY)){
       return;
@@ -114,10 +113,14 @@ Page({
   onTouchEnd(e:any) {
     const index = e.currentTarget.dataset.index;
     console.log('松开', index)
-    this.data.state = false;
+    this.data.pressInfo.touchState = false;
   },
   // 处理
   async handler(){
+    if(this.data.playState){
+      return;
+    }
+    this.data.playState = true;
     let startLine = 8;
     while(startLine >= 0){
       const lines = this.canClearRow(startLine);
@@ -134,6 +137,7 @@ Page({
         startLine --;
       }
     }
+    this.data.playState =false;
   },
   // 二维转一维，步进值
   towArray2OneArray(lineNo: number, lines: number[][],step: number = 9){
@@ -167,51 +171,19 @@ Page({
     if(absX < this.data.MOVE_DISTANCE && absY < this.data.MOVE_DISTANCE){
       return;
     }
-    this.data.state = false;
+    this.data.pressInfo.touchState = false;
     const index = this.data.index;
     let modifyIndex = -1;
     if(absX > absY){
       if(x > 0){
-        this.data.eliminateDatas.map((t,innerIndex) => {
-          if(index + 1 ===innerIndex || index === innerIndex){
-            t.selected = true;
-          }else {
-            t.selected = false;
-          }
-          return t;
-        });
         modifyIndex = index + 1;
       } else if(x < 0){
-        this.data.eliminateDatas.map((t,innerIndex) => {
-          if(index - 1 ===innerIndex || index === innerIndex){
-            t.selected = true;
-          }else {
-            t.selected = false;
-          }
-          return t;
-        });
         modifyIndex = index - 1;
       }
     } else if(absX < absY){
       if(y > 0){
-        this.data.eliminateDatas.map((t,innerIndex) => {
-          if(index + 9 ===innerIndex || index === innerIndex){
-            t.selected = true;
-          }else {
-            t.selected = false;
-          }
-          return t;
-        });
         modifyIndex = index + 9;
       }else if(y < 0){
-        this.data.eliminateDatas.map((t,innerIndex) => {
-          if(index - 9 ===innerIndex || index === innerIndex){
-            t.selected = true;
-          }else {
-            t.selected = false;
-          }
-          return t;
-        });
         modifyIndex = index - 9;
       }
     }
