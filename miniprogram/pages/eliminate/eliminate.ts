@@ -3,10 +3,11 @@ Page({
    * 页面的初始数据
    */
   data: {
-    eliminateDatas:Array<{type: string;selected: boolean}>(),
+    cellWidth: 0,
+    eliminateDatas:Array<{type: string;selected: boolean;clearRow: boolean;fullDown: boolean}>(),
     pressInfo: {
-      startClientX: 0,
-      startClientY: 0,
+      startTouchX: 0,
+      startTouchY: 0,
     },
     index: -1,
     MOVE_DISTANCE: 10, // 超过这个值算移动
@@ -21,6 +22,8 @@ Page({
       return {
         type: String(Math.floor(Math.random() * (this.data.maxType + 1))),
         selected: false,
+        clearRow: false,
+        fullDown: false,
       }
     });
     this.setData({
@@ -31,7 +34,11 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady() {
-
+    const query = wx.createSelectorQuery();
+    console.log(query);
+    query.select('.cell-9 ').boundingClientRect(res => {
+      this.data.cellWidth = res.width * 750;
+    }).exec()
   },
   /**
    * 生命周期函数--监听页面显示
@@ -72,8 +79,8 @@ Page({
   onTouchStart(e:any){
     const index = e.currentTarget.dataset.index;
     const {clientX, clientY} = e.touches[0];
-    this.data.pressInfo.startClientX = clientX;
-    this.data.pressInfo.startClientY = clientY;
+    this.data.pressInfo.startTouchX = clientX;
+    this.data.pressInfo.startTouchY = clientY;
     this.data.index = index;
     this.data.eliminateDatas.map((t,innerIndex) => {
       if(index ===innerIndex){
@@ -88,13 +95,68 @@ Page({
       state: true,
     });
   },
-  onTouchMove(e:any) {
+  async onTouchMove(e:any) {
     if(!this.data.state){
       return;
     }
-    const { clientX, clientY } = e.touches[0];
-    const x = clientX - this.data.pressInfo.startClientX;
-    const y = clientY - this.data.pressInfo.startClientY;
+    // 交换
+    if(!this.exchange(e.touches[0].clientX,e.touches[0].clientY)){
+      return;
+    }else {
+      await this.handler();
+    }
+  },
+  onTouchEnd(e:any) {
+    const index = e.currentTarget.dataset.index;
+    console.log('松开', index)
+    this.data.state = false;
+  },
+  // 处理
+  async handler(){
+    let startLine = 8;
+    while(startLine >= 0){
+      const lines = this.canClearRow(startLine);
+      if(lines.length){
+        this.setClearRowSwing(startLine, lines, true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.setClearRowSwing(startLine, lines);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.fullDownRow(startLine, lines);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.fulllDownRowRestore();
+        this.addZeroRow(lines);
+      } else {
+        startLine --;
+      }
+    }
+  },
+  // 二维转一维，步进值
+  towArray2OneArray(lineNo: number, lines: number[][],step: number = 9){
+    const arr = [];
+    for(const line of lines){
+      for(const l of line){
+        arr.push(l + lineNo * step);
+      }
+    }
+    return arr;
+  },
+  // 设置行样式
+  setClearRowSwing(lineNo: number, lines: number[][], quit?: boolean){
+    const clearRowArray = this.towArray2OneArray(lineNo, lines);
+    const eliminateDatas = this.data.eliminateDatas.map((t, index)=>{
+      if(clearRowArray.includes(index)){
+        t.clearRow = !!quit;
+      }
+      return t;
+    });
+    this.setData({
+      eliminateDatas,
+    });
+  },
+  // 交换节点
+  exchange(touchX: number, touchY: number){
+    const x = touchX - this.data.pressInfo.startTouchX;
+    const y = touchY - this.data.pressInfo.startTouchY;
     const absX = Math.abs(x);
     const absY = Math.abs(y);
     if(absX < this.data.MOVE_DISTANCE && absY < this.data.MOVE_DISTANCE){
@@ -154,28 +216,7 @@ Page({
     this.setData({
       eliminateDatas: this.data.eliminateDatas,
     });
-    // 判断行
-    for(let i = 8 ; i >= 0 ; i --){
-      const lines = this.canClearRow(i);
-      if(lines.length){
-        console.log(lines);
-        console.log(i);
-        // this.fullDownRow(i, lines);
-        // this.addZeroRow(lines);
-        setTimeout(() => {
-          this.fullDownRow(i, lines);
-        },2000);
-        setTimeout(() => {
-          this.addZeroRow(lines);
-        },4000);
-        break;
-      }
-    }
-  },
-  onTouchEnd(e:any) {
-    const index = e.currentTarget.dataset.index;
-    console.log('松开', index)
-    this.data.state = false;
+    return true;
   },
   // 消的优先逻辑：
   // 行 从下到上 优先消除，消除后再比较
@@ -217,11 +258,20 @@ Page({
           const sLineNo = startLineNo + lines[j][t];
           const eLineNo = preLineNo + lines[j][t];
           this.data.eliminateDatas[sLineNo].type = this.data.eliminateDatas[eLineNo].type;
+          this.data.eliminateDatas[eLineNo].fullDown = true;
         }
       }
     }
     this.setData({
       eliminateDatas: this.data.eliminateDatas
+    });
+  },
+  fulllDownRowRestore(){
+    this.setData({
+      eliminateDatas: this.data.eliminateDatas.map(t => {
+        t.fullDown = false;
+        return t;
+      })
     });
   },
   addZeroRow(lines: number[][]){

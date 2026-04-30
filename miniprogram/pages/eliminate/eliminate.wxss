@@ -30,7 +30,26 @@
   font-size: 40rpx;
   color: #333;
   background: #99ffff;
+  transition: transform 1.3s ease;
 }
 .selected {
   background: #33aaff;
+}
+@keyframes swing {
+  0% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+  100% { transform: rotate(-8deg); }
+}
+.clearRow {
+  animation-name: swing;
+  animation-duration: 0.4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-direction: alternate;
+  transform-origin: center;
+  color: yellow;
+}
+.fullDown {
+  transform: translateY(37rpx);
+  background: red;
 }

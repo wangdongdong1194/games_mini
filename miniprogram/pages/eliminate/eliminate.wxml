@@ -2,7 +2,8 @@
   <view class="score"></view>
   <view class="grid-9x9">
     <view 
-      class="cell-9 {{item.selected? 'selected': ''}}"
+      class="cell-9 {{item.selected? 'selected': ''}} {{item.clearRow? 'clearRow': ''}}"
+      style="transform: translateY({{item.fullDown ? cellWidth: 0}}rpx);"
       wx:for="{{eliminateDatas}}" 
       wx:key="index"
       data-index="{{index}}"
