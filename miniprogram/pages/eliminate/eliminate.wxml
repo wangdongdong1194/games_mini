@@ -6,6 +6,7 @@
       wx:for="{{eliminateDatas}}"
       wx:key="index"
       data-index="{{index}}"
+      style="background: {{cellStyles[item.type]}}"
       bindtouchstart="onTouchStart"
       bindtouchmove="onTouchMove"
       bindtouchend="onTouchEnd">

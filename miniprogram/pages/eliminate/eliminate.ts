@@ -15,6 +15,7 @@ Page({
     maxType: 3,
     animationInternal: 200,
     playState: false,
+    cellStyles: ['#000000','#ff0000','#00ff00', '#0000ff']
   },
   /**
    * 生命周期函数--监听页面加载
