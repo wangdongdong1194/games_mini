@@ -1,17 +1,16 @@
 <view class="main">
-  <view class="score"></view>
-  <view class="grid-9x9" style="--cellWidth: {{cellWidth}}rpx">
-    <view 
-      class="cell-9 {{item.clearRow? 'clearRow': ''}} {{item.fullDown? 'fullDown': ''}}"
+  <view class="grid">
+    <view
+      class="cell {{item.clear ? 'clearCell' : ''}} {{item.fullDown ? 'fullDownCell' : ''}}"
       wx:for="{{eliminateDatas}}"
       wx:key="index"
       data-index="{{index}}"
-      style="background: {{cellStyles[item.type]}}"
+      style="background-color: {{cellStyles[item.type]}}"
       bindtouchstart="onTouchStart"
       bindtouchmove="onTouchMove"
-      bindtouchend="onTouchEnd">
-      {{ index }}
+      bindtouchend="onTouchEnd"
+    >
+      {{item.type}}
     </view>
   </view>
-  <view class="func"></view>
 </view>

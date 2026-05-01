@@ -1,307 +1,335 @@
+type Direction = 'left' | 'right' | 'up' | 'down';
+
+interface EliminateCell {
+    type: number;
+    clear: boolean;
+    fullDown: boolean;
+}
+
+interface EliminateClearResult {
+    maxRowNo: number;
+    columnArray: number[];
+    cellIndexArray: number[][];
+}
+
+interface PageData {
+    eliminateDatas: EliminateCell[];
+    isOperating: boolean;
+    dragStartX: number;
+    dragStartY: number;
+    dragIndex: number;
+    dragging: boolean;
+    MOVE_DISTANCE: number;
+    animationInternal: number;
+    maxType: number;
+    cellStyles: string[];
+}
+
 Page({
-  /**
-   * 页面的初始数据
-   */
-  data: {
-    cellWidth: 0,
-    eliminateDatas:Array<{type: string;clearRow: boolean;fullDown: boolean}>(),
-    pressInfo: {
-      startTouchX: 0,
-      startTouchY: 0,
-      touchState: false,
+    data: {
+        eliminateDatas: [],
+        isOperating: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragIndex: -1,
+        dragging: false,
+        MOVE_DISTANCE: 10,
+        animationInternal: 400,
+        maxType: 3,
+        cellStyles: ['#ff0000', '#00ff00', '#00ffff'],
+    } as PageData,
+
+    onLoad() {
+        const eliminateDatas = Array.from({ length: 81 }, () => ({
+            type: this.getRandomType(),
+            clear: false,
+            fullDown: false,
+        }));
+        this.setData({ eliminateDatas }, () => {
+            this.start();
+        });
     },
-    index: -1,
-    MOVE_DISTANCE: 10, // 超过这个值算移动
-    maxType: 3,
-    animationInternal: 200,
-    playState: false,
-    cellStyles: ['#000000','#ff0000','#00ff00', '#0000ff']
-  },
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad() {
-    const eliminateDatas = Array.from({ length: 81 }).map(() => {
-      return {
-        type: String(Math.floor(Math.random() * (this.data.maxType + 1))),
-        clearRow: false,
-        fullDown: false,
-      }
-    });
-    this.data.playState =false;
-    this.setData({
-      eliminateDatas,
-    });
-  },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-    this.calCellWidth();
-    this.handler();
-  },
-  // 计算cell宽度
-  calCellWidth(){
-    const query = wx.createSelectorQuery();
-    const info = wx.getSystemInfoSync();
-    query.select('.cell-9 ').boundingClientRect(res => {
-      this.data.cellWidth = res.width * 750 / info.screenWidth;
-      console.log(this.data.cellWidth, res.width, info.screenWidth);
-      this.setData({
-        cellWidth: this.data.cellWidth,
-      });
-    }).exec()
-  },
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
 
-  },
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
-  },
-  onTouchStart(e:any){
-    const index = e.currentTarget.dataset.index;
-    const {clientX, clientY} = e.touches[0];
-    this.data.pressInfo.startTouchX = clientX;
-    this.data.pressInfo.startTouchY = clientY;
-    this.data.pressInfo.touchState = true;
-    this.data.index = index;
-    this.setData({
-      pressInfo: this.data.pressInfo,
-    });
-  },
-  async onTouchMove(e:any) {
-    if(!this.data.pressInfo.touchState || this.data.playState){
-      return;
-    }
-    console.log('==');
-    // 交换
-    if(!this.exchange(e.touches[0].clientX,e.touches[0].clientY)){
-      return;
-    }else {
-      await this.handler();
-    }
-  },
-  onTouchEnd(e:any) {
-    const index = e.currentTarget.dataset.index;
-    console.log('松开', index)
-    this.data.pressInfo.touchState = false;
-  },
-  // 处理
-  async handler(){
-    if(this.data.playState){
-      return;
-    }
-    this.data.playState = true;
-    let startLine = 8;
-    while(startLine >= 0){
-      const lines = this.canClearRow(startLine);
-      if(lines.length){
-        this.setClearRowSwing(startLine, lines, true);
-        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
-        this.setClearRowSwing(startLine, lines);
-        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
-        this.fullDownRow(startLine, lines);
-        await new Promise(resolve => setTimeout(resolve, this.data.animationInternal));
-        this.fulllDownRowRestore();
-        this.addZeroRow(lines);
-      } else {
-        startLine --;
-      }
-    }
-    let startColumn = 8;
-    while(startColumn >= 0){
-      const columns = this.canClearColumn(startColumn);
-      console.log(columns, startColumn);
-      startColumn--;
-    }
-    this.data.playState =false;
-  },
-  // 二维转一维，步进值
-  towArray2OneArrayRow(lineNo: number, lines: number[][],step: number = 9){
-    const arr = [];
-    for(const line of lines){
-      for(const l of line){
-        arr.push(l + lineNo * step);
-      }
-    }
-    return arr;
-  },
-  towArray2OneArrayColumn(columnNo: number, columns: number[][],step: number = 9){
-    const arr = [];
-    for(const line of columns){
-      for(const l of line){
-        arr.push(l * step + columnNo);
-      }
-    }
-    return arr;
-  },
-  // 设置行样式
-  setClearRowSwing(lineNo: number, lines: number[][], quit?: boolean){
-    const clearRowArray = this.towArray2OneArrayRow(lineNo, lines);
-    const eliminateDatas = this.data.eliminateDatas.map((t, index)=>{
-      if(clearRowArray.includes(index)){
-        t.clearRow = !!quit;
-      }
-      return t;
-    });
-    this.setData({
-      eliminateDatas,
-    });
-  },
-  // 交换节点
-  exchange(touchX: number, touchY: number){
-    const x = touchX - this.data.pressInfo.startTouchX;
-    const y = touchY - this.data.pressInfo.startTouchY;
-    const absX = Math.abs(x);
-    const absY = Math.abs(y);
-    if(absX < this.data.MOVE_DISTANCE && absY < this.data.MOVE_DISTANCE){
-      return;
-    }
-    this.data.pressInfo.touchState = false;
-    const index = this.data.index;
-    let modifyIndex = -1;
-    if(absX > absY){
-      if(x > 0){
-        modifyIndex = index + 1;
-      } else if(x < 0){
-        modifyIndex = index - 1;
-      }
-    } else if(absX < absY){
-      if(y > 0){
-        modifyIndex = index + 9;
-      }else if(y < 0){
-        modifyIndex = index - 9;
-      }
-    }
-    const type = String(this.data.eliminateDatas[index].type);
-    this.data.eliminateDatas[index].type = this.data.eliminateDatas[modifyIndex].type;
-    this.data.eliminateDatas[modifyIndex].type = type;
-    this.setData({
-      eliminateDatas: this.data.eliminateDatas,
-    });
-    return true;
-  },
-  // 消的优先逻辑：
-  // 行 从下到上 优先消除，消除后再比较
-  // 列 从右往左
-  // 判断行是否可以消-从9到1行
-  canClearRow(lineNo: number):number[][]{
-    // 行
-    const eliminateData = this.data.eliminateDatas.filter((_, index) => Math.floor(index / 9) === lineNo);
-    const resultArray: number[][] = [];
-    const line: number[] = [];
-    for(let i = 0 ; i < eliminateData.length ; i ++){
-      const curType = eliminateData[i].type;
-      if (!line.length) {
-        line.push(i);
-        continue;
-      }
-      if(eliminateData[line[line.length-1]].type !== curType){
-        if(line.length >= 3){
-          resultArray.push([...line]);
+    onTouchStart(e: WechatMiniprogram.TouchEvent) {
+        if (this.data.isOperating) {
+            return;
         }
-        line.splice(0, line.length);
-      }
-      line.push(i);
-    }
-    if(line.length >= 3){
-      resultArray.push([...line]);
-    }
-    return resultArray;
-  },
-  // 列是否可清除
-  canClearColumn(columnNo: number): number[][]{
-    // 列
-    const eliminateData = this.data.eliminateDatas.filter((_, index) => index % 9 === columnNo);
-    const resultArray: number[][] = [];
-    const column: number[] = [];
-    for(let i = 0 ; i < eliminateData.length ; i ++){
-      const curType = eliminateData[i].type;
-      if (!column.length) {
-        column.push(i);
-        continue;
-      }
-      if(eliminateData[column[column.length-1]].type !== curType){
-        if(column.length >= 3){
-          resultArray.push([...column]);
+        const rawIndex = e.currentTarget.dataset.index;
+        const index = Number(rawIndex == null ? -1 : rawIndex);
+        if (index < 0) {
+            return;
         }
-        column.splice(0, column.length);
-      }
-      column.push(i);
-    }
-    if(column.length >= 3){
-      resultArray.push([...column]);
-    }
-    return resultArray;
-  },
-  fullDownRow(lineNo: number, lines: number[][]){
-    if(lineNo === 0){
-      return;
-    }
-    this.fulllDownRowRestore();
-    for(let i = lineNo ; i > 0 ; i --){
-      const startLineNo = i * 9;
-      const preLineNo = (i - 1) * 9;
-      for(let j = 0;j < lines.length ; j ++){
-        for(let t = 0; t < lines[j].length ; t ++){
-          const sLineNo = startLineNo + lines[j][t];
-          const eLineNo = preLineNo + lines[j][t];
-          this.data.eliminateDatas[sLineNo].type = this.data.eliminateDatas[eLineNo].type;
-          this.data.eliminateDatas[eLineNo].fullDown = true;
+        const touch = e.touches[0];
+        this.setData({
+            dragStartX: touch.clientX,
+            dragStartY: touch.clientY,
+            dragIndex: index,
+            dragging: true,
+        });
+    },
+
+    async onTouchMove(e: WechatMiniprogram.TouchEvent) {
+        if (!this.data.dragging || this.data.isOperating) {
+            return;
         }
-      }
-    }
-    this.setData({
-      eliminateDatas: this.data.eliminateDatas
-    });
-  },
-  fulllDownRowRestore(){
-    this.setData({
-      eliminateDatas: this.data.eliminateDatas.map(t => {
-        t.fullDown = false;
-        return t;
-      })
-    });
-  },
-  addZeroRow(lines: number[][]){
-    for(let j = 0;j < lines.length ; j ++){
-      for(let t = 0; t < lines[j].length ; t ++){
-        const sLineNo = lines[j][t];
-        this.data.eliminateDatas[sLineNo].type = String(Math.floor(Math.random() * this.data.maxType));
-      }
-    }
-    this.setData({
-      eliminateDatas: this.data.eliminateDatas
-    });
-  }
-})
+        const touch = e.touches[0];
+        const dx = touch.clientX - this.data.dragStartX;
+        const dy = touch.clientY - this.data.dragStartY;
+
+        if (Math.abs(dx) <= this.data.MOVE_DISTANCE && Math.abs(dy) <= this.data.MOVE_DISTANCE) {
+            return;
+        }
+
+        this.setData({ dragging: false });
+        const direction: Direction =
+            Math.abs(dx) > Math.abs(dy)
+                ? dx > 0
+                    ? 'right'
+                    : 'left'
+                : dy > 0
+                    ? 'down'
+                    : 'up';
+
+        const swapped = this.trySwapAndCheck(this.data.dragIndex, direction);
+        if (swapped) {
+            await this.start();
+        }
+    },
+
+    onTouchEnd() {
+        if (this.data.dragging) {
+            this.setData({ dragging: false });
+        }
+    },
+
+    getRandomType() {
+        return Math.floor(Math.random() * this.data.maxType);
+    },
+
+    trySwapAndCheck(index: number, direction: Direction) {
+        const row = Math.floor(index / 9);
+        const col = index % 9;
+        let target = -1;
+
+        if (direction === 'left' && col > 0) {
+            target = index - 1;
+        }
+        if (direction === 'right' && col < 8) {
+            target = index + 1;
+        }
+        if (direction === 'up' && row > 0) {
+            target = index - 9;
+        }
+        if (direction === 'down' && row < 8) {
+            target = index + 9;
+        }
+
+        if (target < 0 || target >= this.data.eliminateDatas.length) {
+            return false;
+        }
+
+        const board = this.data.eliminateDatas.slice();
+        [board[index], board[target]] = [board[target], board[index]];
+
+        if (this.canTriggerEliminate(index, board) || this.canTriggerEliminate(target, board)) {
+            this.setData({ eliminateDatas: board });
+            return true;
+        }
+
+        return false;
+    },
+
+    canTriggerEliminate(idx: number, board: EliminateCell[]) {
+        const row = Math.floor(idx / 9);
+        const col = idx % 9;
+        const rowResult = this.canClearRow(row, board);
+        const colResult = this.canClearColumn(col, board);
+        return rowResult.cellIndexArray.flat().length > 0 || colResult.cellIndexArray.flat().length > 0;
+    },
+
+    canClearRow(rowNo: number, board: EliminateCell[]): EliminateClearResult {
+        const rowCells = board.filter((_, index) => Math.floor(index / 9) === rowNo);
+        const indexArray: number[][] = [];
+        const line: number[] = [];
+
+        for (let i = 0; i < rowCells.length; i++) {
+            const curType = rowCells[i].type;
+            if (!line.length) {
+                line.push(i);
+                continue;
+            }
+            if (rowCells[line[line.length - 1]].type !== curType) {
+                if (line.length >= 3) {
+                    indexArray.push([...line]);
+                }
+                line.splice(0, line.length);
+            }
+            line.push(i);
+        }
+
+        if (line.length >= 3) {
+            indexArray.push([...line]);
+        }
+
+        return {
+            maxRowNo: rowNo,
+            columnArray: indexArray.flat(),
+            cellIndexArray: indexArray.map((item) => item.map((i) => i + rowNo * 9)),
+        };
+    },
+
+    canClearColumn(columnNo: number, board: EliminateCell[]): EliminateClearResult {
+        const columnCells = board.filter((_, index) => index % 9 === columnNo);
+        const indexArray: number[][] = [];
+        const line: number[] = [];
+
+        for (let i = 0; i < columnCells.length; i++) {
+            const curType = columnCells[i].type;
+            if (!line.length) {
+                line.push(i);
+                continue;
+            }
+            if (columnCells[line[line.length - 1]].type !== curType) {
+                if (line.length >= 3) {
+                    indexArray.push([...line]);
+                }
+                line.splice(0, line.length);
+            }
+            line.push(i);
+        }
+
+        if (line.length >= 3) {
+            indexArray.push([...line]);
+        }
+
+        const cellIndexes = indexArray.map((item) => item.map((i) => i * 9 + columnNo));
+        const flatIndexes = cellIndexes.flat();
+
+        return {
+            maxRowNo: flatIndexes.length ? Math.max(...flatIndexes.map((idx) => Math.floor(idx / 9))) : -1,
+            columnArray: flatIndexes.length ? [columnNo] : [],
+            cellIndexArray: cellIndexes,
+        };
+    },
+
+    fulldown(columns: number[], board: EliminateCell[]) {
+        const result: Record<number, EliminateCell[]> = {};
+
+        for (const column of columns) {
+            const colCells = board.filter((_, index) => index % 9 === column);
+            const noClearCells = colCells
+                .map((cell, row) => ({ cell, row }))
+                .filter((item) => !item.cell.clear)
+                .map((item) => ({ ...item.cell, clear: false, _oldRow: item.row }));
+
+            const needFill = 9 - noClearCells.length;
+            const downCells: EliminateCell[] = Array.from({ length: needFill }, () => ({
+                type: this.getRandomType(),
+                clear: false,
+                fullDown: true,
+            }));
+
+            const finalCells = [...downCells, ...noClearCells].map((cell, newRow) => {
+                if ('_oldRow' in cell) {
+                    const oldRow = (cell as EliminateCell & { _oldRow: number })._oldRow;
+                    const moved = oldRow !== newRow;
+                    const { _oldRow, ...rest } = cell as EliminateCell & { _oldRow: number };
+                    return { ...rest, fullDown: moved };
+                }
+                return cell;
+            });
+
+            result[column] = finalCells as EliminateCell[];
+        }
+
+        return result;
+    },
+
+    applyFulldown(fulldownResult: Record<number, EliminateCell[]>) {
+        const board = this.data.eliminateDatas.slice();
+        for (let index = 0; index < board.length; index++) {
+            const column = index % 9;
+            if (!fulldownResult[column]) {
+                continue;
+            }
+            const row = Math.floor(index / 9);
+            board[index] = fulldownResult[column][row];
+        }
+        this.setData({ eliminateDatas: board });
+    },
+
+    resetFlags() {
+        const board = this.data.eliminateDatas.map((cell) => ({
+            ...cell,
+            clear: false,
+            fullDown: false,
+        }));
+        this.setData({ eliminateDatas: board });
+    },
+
+    collectClearResults(board: EliminateCell[]) {
+        const resultArray: EliminateClearResult[] = [];
+
+        for (let i = 8; i >= 0; i--) {
+            const rowResult = this.canClearRow(i, board);
+            if (rowResult.columnArray.length) {
+                resultArray.push(rowResult);
+            }
+        }
+
+        for (let i = 8; i >= 0; i--) {
+            const columnResult = this.canClearColumn(i, board);
+            if (columnResult.columnArray.length) {
+                resultArray.push(columnResult);
+            }
+        }
+
+        return resultArray;
+    },
+
+    async start() {
+        if (this.data.isOperating) {
+            return;
+        }
+        this.setData({ isOperating: true });
+
+        while (true) {
+            const currentBoard = this.data.eliminateDatas;
+            const resultArray = this.collectClearResults(currentBoard);
+            if (!resultArray.length) {
+                break;
+            }
+
+            const clearIndexes = new Set<number>();
+            const columns = new Set<number>();
+
+            for (const res of resultArray) {
+                res.cellIndexArray.forEach((line) => line.forEach((index) => clearIndexes.add(index)));
+                res.columnArray.forEach((column) => columns.add(column));
+            }
+
+            const markBoard = currentBoard.map((cell, index) => ({
+                ...cell,
+                clear: clearIndexes.has(index),
+            }));
+            this.setData({ eliminateDatas: markBoard });
+
+            await this.sleep();
+
+            const fulldownResult = this.fulldown([...columns], markBoard);
+            this.applyFulldown(fulldownResult);
+
+            await this.sleep();
+
+            this.resetFlags();
+        }
+
+        this.setData({ isOperating: false });
+    },
+
+    sleep() {
+        return new Promise<void>((resolve) => {
+            setTimeout(() => resolve(), this.data.animationInternal);
+        });
+    },
+});
