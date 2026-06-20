@@ -1,0 +1,88 @@
+<view class="main">
+  <view class="titlePanel">
+    <!-- 搜索、tabs、线路信息不变 -->
+    <view class="busNameSearchView">
+      <input bindinput="busNameEvent" type="text" placeholder="输入公交车，如487" class="busNameInput" placeholder-class="busNamePlaceholderInput"></input>
+      <view class="busNameSearchBtn">搜索</view>
+    </view>
+    <view class="tabsContainer">
+      <view class="tabBusName">未来科学城北公交场站 方向</view>
+      <view class="tabBusName active">未来科学城北公交场站 方向</view>
+      <view class="tabBusName">未来科学城北公交场站 方向</view>
+      <view class="tabBusName">未来科学城北公交场站 方向</view>
+      <view class="tabBusName">未来科学城北公交场站 方向</view>
+    </view>
+    <view class="busBaseInfoView">
+      <view class="busTitle">417路区间(名流花园菊苑--生命科学园西站)</view>
+      <view class="busBaseMeta">
+        <view class="busMeta">首班 0500</view>
+        <view class="busMeta">末班 0500</view>
+        <view>全程 28站</view>
+      </view>
+      <input placeholder="过滤当前线路站点" class="busNameInput"></input>
+    </view>
+  </view>
+
+  <!-- 滚动层外层flex:1占剩余高度，内层scroll-view高度100% -->
+  <view class="stationWrap">
+    <scroll-view scroll-y class="stationPanels">
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 1 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 2 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 3 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 4 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 5 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 6 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 7 站</view>
+      </view>
+      <view class="stationPanel">
+        <view class="stationName">
+          <view class="stopStation">名流花园菊苑</view>
+          <view class="stopId">站点ID: BV11494540</view>
+        </view>
+        <view class="stationNo">第 8 站</view>
+      </view>
+      <view class="stationPanel"></view>
+    </scroll-view>
+  </view>
+</view>

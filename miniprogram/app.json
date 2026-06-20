@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/bus/bus",
     "pages/eliminate/eliminate",
     "pages/sudoku/sudoku",
     "pages/index/index",
@@ -12,5 +13,11 @@
   },
   "style": "v2",
   "componentFramework": "glass-easel",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "requiredPrivateInfos": ["getLocation"],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取当前定位，展示周边信息"
+    }
+  }
 }

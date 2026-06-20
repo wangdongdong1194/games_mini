@@ -1,0 +1,96 @@
+page{
+  background: #eeeeff;
+  height: 100vh; /* 根页面撑满屏幕，flex生效前提 */
+  overflow: hidden; /* 禁止页面整体滚动 */
+}
+.main{
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 继承page全屏高度 */
+}
+.titlePanel{
+  height: fit-content;
+  flex-shrink: 0; /* 顶部区域禁止压缩 */
+}
+.busNameSearchView{
+  display: flex;
+  align-items: center;
+  background: #4f46e5;
+  padding: 20rpx;
+}
+.busNameInput{
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  padding: 20rpx;
+  margin: 20rpx 0;
+  flex: 1;
+}
+.busNamePlaceholderInput{
+  color: #cccccc;
+}
+.busNameSearchBtn{
+  margin: 0 10rpx;
+  background: #ffffff;
+  padding: 20rpx 40rpx;
+  border-radius: 20rpx;
+  color: #4f46e5;
+}
+
+.tabsContainer{
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabBusName{
+  min-width: fit-content;
+  padding: 20rpx 30rpx;
+  color: #4f46e5;
+}
+.tabBusName:last-child {
+  border-right: none;
+}
+.tabBusName.active {
+  color: #ffffff;
+  background: #4f46e5;
+  border-bottom-left-radius: 20rpx;
+  border-bottom-right-radius: 20rpx;
+}
+.busBaseInfoView{
+  padding: 20rpx;
+  border-bottom: 1px dotted #cccccc;
+}
+.busTitle{
+  font-weight: 500;
+}
+.busBaseMeta{
+  display: flex;
+  margin: 10rpx 0;
+}
+.busMeta{
+  width: 200rpx;
+}
+
+/* 新增滚动外层 */
+.stationWrap{
+  flex: 1; /* 自动占满titlePanel剩下的所有屏幕高度 */
+  overflow: hidden;
+}
+/* 站点滚动容器 */
+.stationPanels{
+  height: 100%; /* 填满父级stationWrap高度 */
+}
+.stationPanel{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  border: 1px solid #dddddd;
+  margin: 30rpx 20rpx;
+  border-radius: 20rpx;
+}
+.stationPanel:last-child{
+  border: none;
+}
+.stopId{
+  font-size: 24rpx;
+}
