@@ -19,7 +19,7 @@
         <view class="busMeta">末班 0500</view>
         <view>全程 28站</view>
       </view>
-      <input placeholder="过滤当前线路站点" class="busNameInput"></input>
+      <input placeholder="过滤当前线路站点" class="busNameInput stopNameInput"></input>
     </view>
   </view>
 

@@ -24,6 +24,10 @@ page{
   padding: 20rpx;
   margin: 20rpx 0;
   flex: 1;
+  color: #ffffff;
+}
+.stopNameInput{
+  color: #000000;
 }
 .busNamePlaceholderInput{
   color: #cccccc;
@@ -39,7 +43,16 @@ page{
 .tabsContainer{
   display: flex;
   overflow-x: auto;
+  /* 原生浏览器、H5 隐藏滚动条 */
   scrollbar-width: none;
+  /* IE 旧浏览器兼容 */
+  -ms-overflow-style: none;
+}
+/* 单独隐藏 Webkit 内核（微信小程序、iOS、Chrome、Safari） */
+.tabsContainer::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 .tabBusName{
   min-width: fit-content;
