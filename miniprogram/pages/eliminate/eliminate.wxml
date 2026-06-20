@@ -10,7 +10,7 @@
       bindtouchmove="onTouchMove"
       bindtouchend="onTouchEnd"
     >
-      {{item.type}}
+      <!-- {{item.type}} -->
     </view>
   </view>
 </view>
